@@ -16,13 +16,14 @@ class Direction {
 }
 
 const chicken = createFigureType(
+    "chicken",
     [
 	new Point(0, 1),
     ],
-    "chicken"
 )
 
 const lion = createFigureType(
+    "lion",
     [
 	new Point(0, 1),
 	new Point(1, 1),
@@ -32,27 +33,26 @@ const lion = createFigureType(
 	new Point(-1, 0),
 	new Point(-1, 1),
     ],
-    "lion"
 )
 
 const giraffe = createFigureType(
+    "giraffe",
     [
 	new Point(0, 1),
 	new Point(1, 0),
 	new Point(0, -1),
 	new Point(-1, 0),
     ],
-    "giraffe"
 )
 
 const elephant = createFigureType(
+    "elephant",
     [
 	new Point( 1,  1),
 	new Point( 1, -1),
 	new Point(-1, -1),
 	new Point(-1,  1),
     ],
-    "elephant"
 )
 
 export { Direction, chicken, lion, giraffe, elephant }
