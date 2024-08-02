@@ -15,6 +15,15 @@ class Direction {
 
 }
 
+class Figure {
+
+    constructor(direction, type) {
+	this.type = type
+	this.direction = direction
+    }
+
+}
+
 const chicken = createFigureType(
     "chicken",
     [
@@ -55,5 +64,5 @@ const elephant = createFigureType(
     ],
 )
 
-export { Direction, chicken, lion, giraffe, elephant }
+export { Figure, Direction, chicken, lion, giraffe, elephant }
 
