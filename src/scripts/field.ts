@@ -2,8 +2,29 @@ import { Direction, FigureType, Figure } from "./figures.js"
 import { Point } from "./utils/point.js"
 
 class CellInfo {
-    
+
     constructor(public field: Field) {
+    }
+
+}
+
+class FigureToElementMapper {
+
+    private readonly figureToElement = new Map()
+
+    private readonly elementToFigure = new Map()
+
+    public bind(figure: Figure, element: HTMLElement) {
+	this.figureToElement.set(figure, element)
+	this.elementToFigure.set(element, figure)
+    }
+
+    public getFigure(element: HTMLElement): Figure {
+	return this.elementToFigure.get(element)
+    }
+
+    public getElement(figure: Figure): HTMLElement {
+	return this.figureToElement.get(figure)
     }
 
 }
@@ -36,6 +57,8 @@ class Field {
 
     chosenFigure: Figure | null = null
 
+    figureToElementMapper = new FigureToElementMapper()
+
     constructor() {
         this.nRows = 4
         this.nCols = 3
@@ -60,8 +83,6 @@ class Field {
         this.figureYGap = 0
 
 	this.generateCellElements()
-
-
     }
 
     getHighlightedCells(type: FigureType, figureCoords: Point) {
@@ -88,6 +109,7 @@ class Field {
 
     createFigureElement(figure: Figure) {
         const figureElement = document.createElement("div")
+
         const sideSizeStr = this.cellSideSize.toString() + "px"
 
         const assetPath = "assets/" + figure.type.assetName + ".png"
@@ -113,6 +135,9 @@ class Field {
 	};
 
         this.field.appendChild(figureElement)
+
+	this.figureToElementMapper.bind(figure, figureElement)
+
 	return figureElement
     }
 
@@ -170,7 +195,6 @@ class Field {
     }
 
     putFigure(figure: HTMLElement, coords: Point) {
-	
         const screenPos = this.calculateFigurePos(coords.x, coords.y)
 
         figure.style.top = screenPos.y.toString() + "px" 
@@ -178,6 +202,7 @@ class Field {
     }
 
     moveFigure(figure: Figure, newCoords: Point) {
+
     }
 
     generateCellElements() {
