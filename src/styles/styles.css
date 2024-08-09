@@ -1,0 +1,25 @@
+.cell {
+    position: relative;
+}
+
+.field {
+    /*
+    width: 1000px;
+    height: 1500px;
+    */
+    position: relative;
+
+}
+
+.test {
+    position: relative;
+    top: 100px;
+    left: 100px;
+}
+
+/*
+.field-row {
+  width: fit-content;
+}
+*/
+
