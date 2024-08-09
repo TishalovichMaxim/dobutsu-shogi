@@ -17,7 +17,7 @@ class Direction {
 
 class Figure {
 
-    constructor(public direction: Direction, public type: FigureType) {
+    constructor(public direction: Direction, public type: FigureType, public coords: Point) {
     }
 
 }
@@ -62,5 +62,5 @@ const elephant = new FigureType(
     ],
 )
 
-export { Figure, Direction, chicken, lion, giraffe, elephant }
+export { Figure, FigureType, Direction, chicken, lion, giraffe, elephant }
 
