@@ -17,9 +17,17 @@
     left: 100px;
 }
 
+body {
+    margin: 0;
+}
+
 /*
 .field-row {
   width: fit-content;
 }
 */
+
+#canvas {
+    display: block
+}
 

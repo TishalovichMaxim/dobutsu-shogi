@@ -17,7 +17,7 @@ class Direction {
 
 class Figure {
 
-    constructor(public direction: Direction, public type: FigureType, public coords: Point) {
+    constructor(public direction: Direction, public type: FigureType) {
     }
 
 }
