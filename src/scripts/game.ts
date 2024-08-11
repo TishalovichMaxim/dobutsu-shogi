@@ -1,6 +1,7 @@
 import { Field } from "./field.js"
 import { Point } from "./utils/point.js"
-import { chicken, lion, elephant, giraffe, Figure, Direction } from "./figures.js"
+import { Cell } from "./cell.js"
+import { chicken, lion, elephant, giraffe, Figure, } from "./figures.js"
 
 class Game {
 
@@ -16,11 +17,11 @@ class Game {
 
     private sideLen = 100
 
-    constructor() {
+    constructor(field: Field) {
         this.loadImages()
         this.initCanvas()
 
-        this.field = new Field()
+        this.field = field
     }
 
     private loadImages() {
@@ -51,6 +52,17 @@ class Game {
 
         this.canvas.width = globalThis.innerWidth
         this.canvas.height = globalThis.innerHeight
+
+        this.canvas.onmousedown = (event) => {
+            console.log(event.offsetX)
+            console.log(event.offsetY)
+        }
+    }
+
+    private drawCell(ctx: CanvasRenderingContext2D, cell: Cell, coords: Point) {
+        if (cell.containsFigure) {
+            this.drawFigure(ctx, cell.figure, coords)
+        }
     }
 
     private drawFigure(ctx: CanvasRenderingContext2D, figure: Figure, coords: Point) {
@@ -72,21 +84,19 @@ class Game {
         );
 
 
-        //for (let i = 0; i < this.field.nRows; i++) {
-        //    for (let j = 0; j < this.field.nCols; j++) {
-        //        const cell = this.field.cells[i][j]
-        //        if (cell.containsFigure) {
-        //            this.drawFigure(ctx, cell.figure, new Point(j, i))
-        //        }
-        //    }
-        //}
+        for (let i = 0; i < this.field.nRows; i++) {
+            for (let j = 0; j < this.field.nCols; j++) {
+                const cell = this.field.cells[i][j]
+                this.drawCell(ctx, cell, new Point(j, i))
+            }
+        }
 
 
-        const chickenFigure = new Figure(Direction.UP, chicken)
-        const lionFigure = new Figure(Direction.UP, lion)
+        //const chickenFigure = new Figure(Direction.UP, chicken)
+        //const lionFigure = new Figure(Direction.UP, lion)
 
-        this.drawFigure(ctx, chickenFigure, new Point(0, 0))
-        this.drawFigure(ctx, lionFigure, new Point(1, 1))
+        //this.drawFigure(ctx, chickenFigure, new Point(0, 0))
+        //this.drawFigure(ctx, lionFigure, new Point(1, 1))
     }
 
 }

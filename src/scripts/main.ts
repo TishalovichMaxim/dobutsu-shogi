@@ -1,19 +1,33 @@
 import { Game } from "./game.js"
-//import { Field } from "./field.js"
-//import { Point } from "./utils/point.js"
-//import { chicken, lion, elephant, giraffe, Direction, Figure } from "./figures.js"
-//
-//const figures = [
-//    new Figure(Direction.UP, 	chicken, 	new Point(1, 1)),
-//    new Figure(Direction.DOWN, 	elephant,	new Point(2, 1)),
-//    new Figure(Direction.UP, 	lion,		new Point(1, 2)),
-//    new Figure(Direction.DOWN, 	giraffe,	new Point(2, 2))
-//] 
-//
-//const field = new Field()
-//
-//field.draw(figures)
+import { Field } from "./field.js"
+import { chicken, lion, elephant, giraffe, Direction, Figure } from "./figures.js"
 
-const game = new Game()
+const figures4x3 = [
+    [
+        new Figure(Direction.UP, elephant),
+        new Figure(Direction.UP, lion),
+        new Figure(Direction.UP, giraffe),
+    ],
+    [
+        null,
+        new Figure(Direction.UP, chicken),
+        null,
+    ],
+    [
+        null,
+        new Figure(Direction.DOWN, chicken),
+        null,
+    ],
+    [
+        new Figure(Direction.DOWN, giraffe),
+        new Figure(Direction.DOWN, lion),
+        new Figure(Direction.DOWN, elephant),
+    ],
+] 
+
+const field4x3 = new Field(figures4x3)
+
+const game = new Game(field4x3)
+
 game.draw()
 

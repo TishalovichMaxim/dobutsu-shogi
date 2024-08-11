@@ -1,14 +1,10 @@
 import { Figure } from "./figures.js"
 
 class Cell {
-    
+
     private _isHighlighted: boolean = false
 
-    private _figure: Figure | null
-
-    get figure(): Figure {
-        return this._figure
-    }
+    public figure: Figure | null = null
 
     get isHighlighted(): boolean {
         return this._isHighlighted
@@ -19,7 +15,7 @@ class Cell {
     }
 
     removeFigure() {
-        this._figure = null
+        this.figure = null
     }
 
     highlight() {
