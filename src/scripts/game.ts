@@ -1,7 +1,7 @@
 import { Field } from "./field.js"
 import { Point } from "./utils/point.js"
 import { Cell } from "./cell.js"
-import { chicken, lion, elephant, giraffe, Figure, } from "./figures.js"
+import { chicken, lion, elephant, giraffe, Figure, Direction, } from "./figures.js"
 
 class Game {
 
@@ -66,7 +66,18 @@ class Game {
     }
 
     private drawFigure(ctx: CanvasRenderingContext2D, figure: Figure, coords: Point) {
-        ctx.drawImage(this.images[figure.type.assetName], coords.x*this.sideLen, coords.y*this.sideLen, this.sideLen, this.sideLen)
+        const image = this.images[figure.type.assetName]
+
+        if (figure.direction == Direction.DOWN) {
+            ctx.save()
+
+            ctx.rotate(Math.PI)
+            ctx.drawImage(image, -(coords.x + 1)*this.sideLen, -(coords.y + 1)*this.sideLen, this.sideLen, this.sideLen)
+
+            ctx.restore()
+        } else {
+            ctx.drawImage(image, coords.x*this.sideLen, coords.y*this.sideLen, this.sideLen, this.sideLen)
+        }
     }
 
     async draw() {
