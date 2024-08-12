@@ -7,6 +7,8 @@ class Game {
 
     private static readonly CELLS_HEIGHT_TO_SCREEN = 0.7
 
+    private static readonly FIGURE_TO_CELL= 0.93
+
     private static readonly CANVAS_ID = "canvas"
 
     private canvas: HTMLCanvasElement
@@ -18,6 +20,10 @@ class Game {
     private readonly field: Field
 
     private cellSideSize: number
+
+    private figureSideSize: number
+
+    private deltaFigureCell: number
 
     private cellsTopLeft: Point
 
@@ -91,18 +97,18 @@ class Game {
             ctx.rotate(Math.PI)
 
             ctx.drawImage(image,
-                          -figureScreenCoords.x - this.cellSideSize,
-                          -figureScreenCoords.y - this.cellSideSize,
-                          this.cellSideSize,
-                          this.cellSideSize)
+                          -(figureScreenCoords.x + this.cellSideSize - this.deltaFigureCell),
+                          -(figureScreenCoords.y + this.cellSideSize - this.deltaFigureCell),
+                          this.figureSideSize,
+                          this.figureSideSize)
 
             ctx.restore()
         } else {
             ctx.drawImage(image,
-                          figureScreenCoords.x,
-                          figureScreenCoords.y,
-                          this.cellSideSize,
-                          this.cellSideSize
+                          figureScreenCoords.x + this.deltaFigureCell,
+                          figureScreenCoords.y + this.deltaFigureCell,
+                          this.figureSideSize,
+                          this.figureSideSize
                          )
         }
     }
@@ -114,6 +120,9 @@ class Game {
         ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
         this.cellSideSize = (this.canvas.height*Game.CELLS_HEIGHT_TO_SCREEN)/this.field.nRows
+        this.figureSideSize = this.cellSideSize*Game.FIGURE_TO_CELL
+        this.deltaFigureCell = (this.cellSideSize - this.figureSideSize)/2
+
         this.cellsTopLeft = new Point(
             (this.canvas.width - (this.field.nCols*this.cellSideSize))/2,
             (this.canvas.height - (this.field.nRows*this.cellSideSize))/2
