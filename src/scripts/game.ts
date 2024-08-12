@@ -5,6 +5,8 @@ import { chicken, lion, elephant, giraffe, Figure, Direction, } from "./figures.
 
 class Game {
 
+    private static readonly CELLS_HEIGHT_TO_SCREEN = 0.7
+
     private static readonly CANVAS_ID = "canvas"
 
     private canvas: HTMLCanvasElement
@@ -15,7 +17,9 @@ class Game {
 
     private readonly field: Field
 
-    private sideLen = 100
+    private cellSideSize: number
+
+    private cellsTopLeft: Point
 
     constructor(field: Field) {
         this.loadImages()
@@ -65,18 +69,41 @@ class Game {
         }
     }
 
+    private getFigureScreenCoords(fieldCoords: Point) {
+        const res = new Point(
+            fieldCoords.x*this.cellSideSize,
+            (this.field.nRows - (fieldCoords.y + 1))*this.cellSideSize
+        )
+
+        res.add(this.cellsTopLeft)
+
+        return res
+    }
+
     private drawFigure(ctx: CanvasRenderingContext2D, figure: Figure, coords: Point) {
         const image = this.images[figure.type.assetName]
+
+        const figureScreenCoords = this.getFigureScreenCoords(coords)
 
         if (figure.direction == Direction.DOWN) {
             ctx.save()
 
             ctx.rotate(Math.PI)
-            ctx.drawImage(image, -(coords.x + 1)*this.sideLen, -(coords.y + 1)*this.sideLen, this.sideLen, this.sideLen)
+
+            ctx.drawImage(image,
+                          -figureScreenCoords.x - this.cellSideSize,
+                          -figureScreenCoords.y - this.cellSideSize,
+                          this.cellSideSize,
+                          this.cellSideSize)
 
             ctx.restore()
         } else {
-            ctx.drawImage(image, coords.x*this.sideLen, coords.y*this.sideLen, this.sideLen, this.sideLen)
+            ctx.drawImage(image,
+                          figureScreenCoords.x,
+                          figureScreenCoords.y,
+                          this.cellSideSize,
+                          this.cellSideSize
+                         )
         }
     }
 
@@ -86,6 +113,12 @@ class Game {
         ctx.fillStyle = "green";
         ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
+        this.cellSideSize = (this.canvas.height*Game.CELLS_HEIGHT_TO_SCREEN)/this.field.nRows
+        this.cellsTopLeft = new Point(
+            (this.canvas.width - (this.field.nCols*this.cellSideSize))/2,
+            (this.canvas.height - (this.field.nRows*this.cellSideSize))/2
+        )
+        
         //check document.images
         await Promise.all(
             this.imageList.map(
@@ -94,20 +127,12 @@ class Game {
             ),
         );
 
-
         for (let i = 0; i < this.field.nRows; i++) {
             for (let j = 0; j < this.field.nCols; j++) {
                 const cell = this.field.cells[i][j]
                 this.drawCell(ctx, cell, new Point(j, i))
             }
         }
-
-
-        //const chickenFigure = new Figure(Direction.UP, chicken)
-        //const lionFigure = new Figure(Direction.UP, lion)
-
-        //this.drawFigure(ctx, chickenFigure, new Point(0, 0))
-        //this.drawFigure(ctx, lionFigure, new Point(1, 1))
     }
 
 }

@@ -26,7 +26,7 @@ class Field {
     constructor(figures: (Figure | null)[][]) {
         for (let i = 0; i < figures.length; i++) {
             this.cells[i] = []
-            for (let j = 0; j < figures.length; j++) {
+            for (let j = 0; j < figures[i].length; j++) {
                 this.cells[i][j] = new Cell()
                 if (figures[i][j]) {
                     this.cells[i][j].figure = figures[i][j]
