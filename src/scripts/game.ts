@@ -27,6 +27,8 @@ class Game {
 
     private cellsTopLeft: Point
 
+    private chosenCellCoords: Point
+
     constructor(field: Field) {
         this.loadImages()
         this.initCanvas()
@@ -57,19 +59,59 @@ class Game {
         })
     }
 
+    // super inefficient implementation
+    private isFigureClicked(coords: Point): (Point | null) {
+        for (let i = 0; i < this.field.nRows; i++) {
+            for (let j = 0; j < this.field.nCols; j++) {
+                if (
+                    this.cellsTopLeft.x + this.deltaFigureCell + j*this.cellSideSize <= coords.x
+                    && coords.x <= this.cellsTopLeft.x + this.deltaFigureCell + j*this.cellSideSize + this.figureSideSize
+                    && this.cellsTopLeft.y + this.deltaFigureCell + i*this.cellSideSize <= coords.y
+                    && coords.y <= this.cellsTopLeft.y + this.deltaFigureCell + i*this.cellSideSize + this.figureSideSize
+                ) {
+                    const fieldCoords = new Point(j, this.field.nRows - i - 1)
+                    if (this.field.cell(fieldCoords).containsFigure) {
+                        return fieldCoords
+                    }
+                }
+            }
+        }
+
+        return null
+    }
+
     private initCanvas() {
         this.canvas = document.getElementById(Game.CANVAS_ID) as HTMLCanvasElement
 
         this.canvas.width = globalThis.innerWidth
         this.canvas.height = globalThis.innerHeight
 
-        this.canvas.onmousedown = (event) => {
-            console.log(event.offsetX)
-            console.log(event.offsetY)
+        this.canvas.onmousedown = async (event) => {
+
+            const clickPoint = new Point(event.offsetX, event.offsetY)
+            
+            const figureCoords = this.isFigureClicked(clickPoint)
+
+            if (!figureCoords) {
+                return
+            }
+
+            this.field.highlightPossibleMoves(figureCoords)
+            await this.drawInner()
         }
     }
 
     private drawCell(ctx: CanvasRenderingContext2D, cell: Cell, coords: Point) {
+        if (cell.isHighlighted) {
+            ctx.fillStyle = "red"
+            ctx.fillRect(
+                this.cellsTopLeft.x + coords.x*this.cellSideSize,
+                this.cellsTopLeft.y + (this.field.nRows - coords.y - 1)*this.cellSideSize,
+                this.cellSideSize,
+                this.cellSideSize
+            )
+        }
+
         if (cell.containsFigure) {
             this.drawFigure(ctx, cell.figure, coords)
         }
@@ -144,6 +186,28 @@ class Game {
         }
     }
 
+    private async drawInner() {
+        const ctx = this.canvas.getContext("2d");
+
+        ctx.fillStyle = "green";
+        ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+        this.cellSideSize = (this.canvas.height*Game.CELLS_HEIGHT_TO_SCREEN)/this.field.nRows
+        this.figureSideSize = this.cellSideSize*Game.FIGURE_TO_CELL
+        this.deltaFigureCell = (this.cellSideSize - this.figureSideSize)/2
+
+        this.cellsTopLeft = new Point(
+            (this.canvas.width - (this.field.nCols*this.cellSideSize))/2,
+            (this.canvas.height - (this.field.nRows*this.cellSideSize))/2
+        )
+        
+        for (let i = 0; i < this.field.nRows; i++) {
+            for (let j = 0; j < this.field.nCols; j++) {
+                const cell = this.field.cells[i][j]
+                this.drawCell(ctx, cell, new Point(j, i))
+            }
+        }
+    }
 }
 
 export { Game }

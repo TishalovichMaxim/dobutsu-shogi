@@ -6,8 +6,8 @@ class Cell {
 
     public figure: Figure | null = null
 
-    get isHighlighted(): boolean {
-        return this._isHighlighted
+    get isHighlighted() {
+        return this._isHighlighted;
     }
 
     get containsFigure(): boolean {
@@ -16,6 +16,10 @@ class Cell {
 
     removeFigure() {
         this.figure = null
+    }
+
+    unhighlight() {
+        this._isHighlighted = false
     }
 
     highlight() {
