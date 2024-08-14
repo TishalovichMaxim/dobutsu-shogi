@@ -2,8 +2,13 @@ import { Field } from "./field.js"
 import { Point } from "./utils/point.js"
 import { Cell } from "./cell.js"
 import { chicken, lion, elephant, giraffe, Figure, Direction, } from "./figures.js"
+import { Player } from './player.js'
 
 class Game {
+
+    readonly bottomPlayer: Player = new Player(Direction.UP)
+
+    readonly topPlayer: Player = new Player(Direction.DOWN)
 
     private static readonly CELLS_HEIGHT_TO_SCREEN = 0.7
 
@@ -27,7 +32,11 @@ class Game {
 
     private cellsTopLeft: Point
 
-    private chosenCellCoords: Point
+    private chosenFigureCoords: Point = null
+
+    private chosenFigurePossibleCoords: Array<Point> = null
+
+    private turnPlayer: Player = this.bottomPlayer
 
     constructor(field: Field) {
         this.loadImages()
@@ -80,6 +89,20 @@ class Game {
         return null
     }
 
+    getClickedCellCoords(canvasClickPoint: Point): Point | null {
+        const cellsBottomRight = new Point(this.field.nCols*this.cellSideSize, this.field.nRows*this.cellSideSize)
+        cellsBottomRight.add(this.cellsTopLeft)
+
+        if (!canvasClickPoint.inRect(this.cellsTopLeft, cellsBottomRight)) {
+            return null
+        }
+
+        return new Point(
+             Math.floor((canvasClickPoint.x - this.cellsTopLeft.x)/this.cellSideSize),
+             this.field.nRows - Math.floor((canvasClickPoint.y - this.cellsTopLeft.y)/this.cellSideSize) - 1
+        )
+    }
+
     private initCanvas() {
         this.canvas = document.getElementById(Game.CANVAS_ID) as HTMLCanvasElement
 
@@ -87,16 +110,41 @@ class Game {
         this.canvas.height = globalThis.innerHeight
 
         this.canvas.onmousedown = async (event) => {
+            const canvasClickPoint = new Point(event.offsetX, event.offsetY)
 
-            const clickPoint = new Point(event.offsetX, event.offsetY)
-            
-            const figureCoords = this.isFigureClicked(clickPoint)
-
-            if (!figureCoords) {
+            const clickedCellCoords = this.getClickedCellCoords(canvasClickPoint)
+            if (clickedCellCoords == null) {
+                // click was not in a field region
                 return
             }
 
-            this.field.highlightPossibleMoves(figureCoords)
+            //const figureCoords = this.isFigureClicked(canvasClickPoint)
+
+            function possibleMove(possibleMoves: Point[], to: Point): boolean {
+                for (const move of possibleMoves) {
+                    if (move.equal(to)) {
+                        return true
+                    }
+                }
+
+                return false
+            }
+
+            const clickedCell = this.field.cell(clickedCellCoords)
+            if (this.chosenFigureCoords && possibleMove(this.chosenFigurePossibleCoords, clickedCellCoords)) {
+                this.field.move(this.chosenFigureCoords, clickedCellCoords)
+                this.chosenFigureCoords = null
+            } else {
+                if (clickedCell.containsFigure && this.turnPlayer.figuresDirection == clickedCell.figure.direction) {
+                    this.chosenFigureCoords = clickedCellCoords
+                    this.chosenFigurePossibleCoords = this.field.highlightPossibleMoves(clickedCellCoords)
+                } else {
+                    this.chosenFigureCoords = null
+                }
+            }
+
+            //const figure = this.field.cell(figureCoords).figure
+
             await this.drawInner()
         }
     }

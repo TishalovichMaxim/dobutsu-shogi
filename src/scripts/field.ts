@@ -1,19 +1,8 @@
-import { Direction, FigureType, Figure } from "./figures.js"
+import { Direction, Figure } from "./figures.js"
 import { Cell } from "./cell.js"
 import { Point } from "./utils/point.js"
-import { Index2d } from "./utils/index2d.js"
-
-class Player {
-
-    bag: Figure[] = []
-
-}
 
 class Field {
-
-    readonly bottomPlayer: Player = new Player
-
-    readonly topPlayer: Player = new Player()
 
     get nRows() {
         return this.cells.length
@@ -49,8 +38,22 @@ class Field {
         return this.cells[coords.y][coords.x]
     }
 
+    move(from: Point, to: Point) {
+        const fromCell = this.cell(from)
+        const toCell = this.cell(to)
 
-    highlightPossibleMoves(coords: Point) {
+
+        const movedFigure = fromCell.figure
+
+        fromCell.figure = null
+        toCell.figure = movedFigure
+
+        this.unhilightAllCells()
+    }
+
+    highlightPossibleMoves(coords: Point): Point[] {
+        const possibleMoves: Point[] = []
+
         this.unhilightAllCells()
 
         const figure = this.cell(coords).figure
@@ -67,14 +70,19 @@ class Field {
                     && highlightedCellCoords.y >= 0
                     && highlightedCellCoords.y < this.nRows
                 ) {
-                    this.cell(highlightedCellCoords).highlight()
+                    const cell = this.cell(highlightedCellCoords)
+                    cell.highlight()
+                    possibleMoves.push(highlightedCellCoords)
+                    
                 }
             }
         } else {
             
         }
+
+        return possibleMoves
     }
-    
+
 }
 
 export { Field }
