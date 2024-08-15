@@ -26,7 +26,7 @@ class Field {
         }
     }
 
-    private unhilightAllCells() {
+    public unhilightAllCells() {
         for (let i = 0; i < this.nRows; i++) {
             for (let j = 0; j < this.nCols; j++) {
                 this.cells[i][j].unhighlight()
@@ -38,17 +38,21 @@ class Field {
         return this.cells[coords.y][coords.x]
     }
 
-    move(from: Point, to: Point) {
+    move(from: Point, to: Point): null | Figure {
         const fromCell = this.cell(from)
         const toCell = this.cell(to)
-
 
         const movedFigure = fromCell.figure
 
         fromCell.figure = null
+
+        const eatenFigure = toCell.figure
+
         toCell.figure = movedFigure
 
         this.unhilightAllCells()
+
+        return eatenFigure
     }
 
 

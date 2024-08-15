@@ -45,6 +45,17 @@ class Game {
         this.field = field
     }
 
+    private chooseFigure(coords: Point) {
+        this.chosenFigureCoords = coords
+        this.chosenFigurePossibleCoords = this.field.highlightPossibleMoves(coords)
+    }
+
+    private unchooseFigure() {
+        this.chosenFigureCoords = null
+        this.chosenFigurePossibleCoords = null
+        this.field.unhilightAllCells()
+    }
+
     private loadImages() {
         function generateImagePath(imageShortName: string): string {
             return "assets/" + imageShortName + ".png"
@@ -123,10 +134,10 @@ class Game {
             const clickedCellCoords = this.getClickedCellCoords(canvasClickPoint)
             if (clickedCellCoords == null) {
                 // click was not in a field region
+                this.unchooseFigure()
+                await this.drawInner()
                 return
             }
-
-            //const figureCoords = this.isFigureClicked(canvasClickPoint)
 
             function possibleMove(possibleMoves: Point[], to: Point): boolean {
                 for (const move of possibleMoves) {
@@ -142,13 +153,15 @@ class Game {
             if (this.chosenFigureCoords && possibleMove(this.chosenFigurePossibleCoords!, clickedCellCoords)) {
                 this.field.move(this.chosenFigureCoords, clickedCellCoords)
                 this.changeTurn()
-                this.chosenFigureCoords = null
+                this.unchooseFigure()
             } else {
-                if (clickedCell.figure && this.turnPlayer.figuresDirection == clickedCell.figure.direction) {
-                    this.chosenFigureCoords = clickedCellCoords
-                    this.chosenFigurePossibleCoords = this.field.highlightPossibleMoves(clickedCellCoords)
+                if (
+                    clickedCell.figure 
+                    && this.turnPlayer.figuresDirection == clickedCell.figure.direction
+                ) {
+                    this.chooseFigure(clickedCellCoords)
                 } else {
-                    this.chosenFigureCoords = null
+                    this.unchooseFigure()
                 }
             }
 
