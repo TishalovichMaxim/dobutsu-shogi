@@ -68,6 +68,14 @@ class Game {
         })
     }
 
+    private changeTurn() {
+        if (this.turnPlayer == this.bottomPlayer) {
+            this.turnPlayer = this.topPlayer
+        } else {
+            this.turnPlayer = this.bottomPlayer
+        }
+    }
+
     // super inefficient implementation
     private isFigureClicked(coords: Point): (Point | null) {
         for (let i = 0; i < this.field.nRows; i++) {
@@ -133,6 +141,7 @@ class Game {
             const clickedCell = this.field.cell(clickedCellCoords)
             if (this.chosenFigureCoords && possibleMove(this.chosenFigurePossibleCoords!, clickedCellCoords)) {
                 this.field.move(this.chosenFigureCoords, clickedCellCoords)
+                this.changeTurn()
                 this.chosenFigureCoords = null
             } else {
                 if (clickedCell.figure && this.turnPlayer.figuresDirection == clickedCell.figure.direction) {

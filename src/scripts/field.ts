@@ -51,6 +51,21 @@ class Field {
         this.unhilightAllCells()
     }
 
+
+    private validateHihglightedCell(figureDir: Direction,coords: Point): boolean {
+        if (
+            coords.x >= 0
+            && coords.x < this.nCols
+            && coords.y >= 0
+            && coords.y < this.nRows
+        ) {
+            const cell = this.cell(coords)
+            return !cell.figure || cell.figure.direction != figureDir
+        }
+
+        return false
+    }
+
     highlightPossibleMoves(coords: Point): Point[] {
         const possibleMoves: Point[] = []
 
@@ -64,12 +79,7 @@ class Field {
                     coords.y + move.y
                 )
 
-                if (
-                    highlightedCellCoords.x >= 0
-                    && highlightedCellCoords.x < this.nCols
-                    && highlightedCellCoords.y >= 0
-                    && highlightedCellCoords.y < this.nRows
-                ) {
+                if (this.validateHihglightedCell(figure.direction, highlightedCellCoords)) {
                     const cell = this.cell(highlightedCellCoords)
                     cell.highlight()
                     possibleMoves.push(highlightedCellCoords)
@@ -77,7 +87,19 @@ class Field {
                 }
             }
         } else {
-            
+            for (const move of figure.type.moves) {
+                const highlightedCellCoords = new Point(
+                    coords.x - move.x,
+                    coords.y - move.y
+                )
+
+                if (this.validateHihglightedCell(figure.direction, highlightedCellCoords)) {
+                    const cell = this.cell(highlightedCellCoords)
+                    cell.highlight()
+                    possibleMoves.push(highlightedCellCoords)
+                    
+                }
+            }
         }
 
         return possibleMoves
