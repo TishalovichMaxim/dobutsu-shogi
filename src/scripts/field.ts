@@ -56,7 +56,7 @@ class Field {
 
         this.unhilightAllCells()
 
-        const figure = this.cell(coords).figure
+        const figure = this.cell(coords).figure!
         if (figure.direction == Direction.UP) {
             for (const move of figure.type.moves) {
                 const highlightedCellCoords = new Point(

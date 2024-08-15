@@ -1,13 +1,11 @@
 {
     "compilerOptions": {
-	//"emitDeclarationOnly": true,
-	//"composite": true,
-	//"allowImportingTsExtensions": true,
-	"outDir": "build",
-	"target": "ES6"
+        "strict": true,
+        "outDir": "build",
+        "target": "ES6"
     },
     "include": [
-	"./scr/scripts/utils/*",
-	"./src/scripts/*",
+        "./scr/scripts/utils/*",
+        "./src/scripts/*",
     ],
 }

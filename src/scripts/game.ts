@@ -16,7 +16,7 @@ class Game {
 
     private static readonly CANVAS_ID = "canvas"
 
-    private canvas: HTMLCanvasElement
+    private canvas = document.getElementById(Game.CANVAS_ID) as HTMLCanvasElement
 
     private readonly imageList: HTMLImageElement[] = []
 
@@ -24,17 +24,17 @@ class Game {
 
     private readonly field: Field
 
-    private cellSideSize: number
+    private cellSideSize: number = 0
 
-    private figureSideSize: number
+    private figureSideSize: number = 0
 
-    private deltaFigureCell: number
+    private deltaFigureCell: number = 0
 
-    private cellsTopLeft: Point
+    private cellsTopLeft = new Point(0, 0)
 
-    private chosenFigureCoords: Point = null
+    private chosenFigureCoords: Point | null = null
 
-    private chosenFigurePossibleCoords: Array<Point> = null
+    private chosenFigurePossibleCoords: Array<Point> | null = null
 
     private turnPlayer: Player = this.bottomPlayer
 
@@ -47,7 +47,7 @@ class Game {
 
     private loadImages() {
         function generateImagePath(imageShortName: string): string {
-            return "assets/" + imageShortName + ".png";
+            return "assets/" + imageShortName + ".png"
         }
 
         const figuresTypes = [
@@ -131,11 +131,11 @@ class Game {
             }
 
             const clickedCell = this.field.cell(clickedCellCoords)
-            if (this.chosenFigureCoords && possibleMove(this.chosenFigurePossibleCoords, clickedCellCoords)) {
+            if (this.chosenFigureCoords && possibleMove(this.chosenFigurePossibleCoords!, clickedCellCoords)) {
                 this.field.move(this.chosenFigureCoords, clickedCellCoords)
                 this.chosenFigureCoords = null
             } else {
-                if (clickedCell.containsFigure && this.turnPlayer.figuresDirection == clickedCell.figure.direction) {
+                if (clickedCell.figure && this.turnPlayer.figuresDirection == clickedCell.figure.direction) {
                     this.chosenFigureCoords = clickedCellCoords
                     this.chosenFigurePossibleCoords = this.field.highlightPossibleMoves(clickedCellCoords)
                 } else {
@@ -160,7 +160,7 @@ class Game {
             )
         }
 
-        if (cell.containsFigure) {
+        if (cell.figure) {
             this.drawFigure(ctx, cell.figure, coords)
         }
     }
@@ -204,10 +204,10 @@ class Game {
     }
 
     async draw() {
-        const ctx = this.canvas.getContext("2d");
+        const ctx = this.canvas.getContext("2d")!
 
-        ctx.fillStyle = "green";
-        ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+        ctx.fillStyle = "green"
+        ctx.fillRect(0, 0, this.canvas.width, this.canvas.height)
 
         this.cellSideSize = (this.canvas.height*Game.CELLS_HEIGHT_TO_SCREEN)/this.field.nRows
         this.figureSideSize = this.cellSideSize*Game.FIGURE_TO_CELL
@@ -224,7 +224,7 @@ class Game {
                 (image) =>
                     new Promise((resolve) => image.addEventListener("load", resolve)),
             ),
-        );
+        )
 
         for (let i = 0; i < this.field.nRows; i++) {
             for (let j = 0; j < this.field.nCols; j++) {
@@ -235,10 +235,10 @@ class Game {
     }
 
     private async drawInner() {
-        const ctx = this.canvas.getContext("2d");
+        const ctx = this.canvas.getContext("2d")!
 
-        ctx.fillStyle = "green";
-        ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+        ctx.fillStyle = "green"
+        ctx.fillRect(0, 0, this.canvas.width, this.canvas.height)
 
         this.cellSideSize = (this.canvas.height*Game.CELLS_HEIGHT_TO_SCREEN)/this.field.nRows
         this.figureSideSize = this.cellSideSize*Game.FIGURE_TO_CELL
