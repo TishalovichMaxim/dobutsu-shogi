@@ -7,11 +7,10 @@ class FigureType {
 
 }
 
-class Direction {
+enum Direction {
 
-    static UP = 0
-
-    static DOWN = 1
+    UP,
+    DOWN,
 
 }
 

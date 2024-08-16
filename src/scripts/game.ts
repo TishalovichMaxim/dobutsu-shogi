@@ -2,13 +2,8 @@ import { Field } from "./field.js"
 import { Point } from "./utils/point.js"
 import { Cell } from "./cell.js"
 import { chicken, lion, elephant, giraffe, Figure, Direction, } from "./figures.js"
-import { Player } from './player.js'
 
 class Game {
-
-    readonly bottomPlayer: Player = new Player(Direction.UP)
-
-    readonly topPlayer: Player = new Player(Direction.DOWN)
 
     private static readonly CELLS_HEIGHT_TO_SCREEN = 0.7
 
@@ -32,28 +27,11 @@ class Game {
 
     private cellsTopLeft = new Point(0, 0)
 
-    private chosenFigureCoords: Point | null = null
-
-    private chosenFigurePossibleCoords: Array<Point> | null = null
-
-    private turnPlayer: Player = this.bottomPlayer
-
     constructor(field: Field) {
         this.loadImages()
         this.initCanvas()
 
         this.field = field
-    }
-
-    private chooseFigure(coords: Point) {
-        this.chosenFigureCoords = coords
-        this.chosenFigurePossibleCoords = this.field.highlightPossibleMoves(coords)
-    }
-
-    private unchooseFigure() {
-        this.chosenFigureCoords = null
-        this.chosenFigurePossibleCoords = null
-        this.field.unhilightAllCells()
     }
 
     private loadImages() {
@@ -77,35 +55,6 @@ class Game {
             this.images[type.assetName] = img
             this.imageList.push(img)
         })
-    }
-
-    private changeTurn() {
-        if (this.turnPlayer == this.bottomPlayer) {
-            this.turnPlayer = this.topPlayer
-        } else {
-            this.turnPlayer = this.bottomPlayer
-        }
-    }
-
-    // super inefficient implementation
-    private isFigureClicked(coords: Point): (Point | null) {
-        for (let i = 0; i < this.field.nRows; i++) {
-            for (let j = 0; j < this.field.nCols; j++) {
-                if (
-                    this.cellsTopLeft.x + this.deltaFigureCell + j*this.cellSideSize <= coords.x
-                    && coords.x <= this.cellsTopLeft.x + this.deltaFigureCell + j*this.cellSideSize + this.figureSideSize
-                    && this.cellsTopLeft.y + this.deltaFigureCell + i*this.cellSideSize <= coords.y
-                    && coords.y <= this.cellsTopLeft.y + this.deltaFigureCell + i*this.cellSideSize + this.figureSideSize
-                ) {
-                    const fieldCoords = new Point(j, this.field.nRows - i - 1)
-                    if (this.field.cell(fieldCoords).containsFigure) {
-                        return fieldCoords
-                    }
-                }
-            }
-        }
-
-        return null
     }
 
     getClickedCellCoords(canvasClickPoint: Point): Point | null {
@@ -132,40 +81,12 @@ class Game {
             const canvasClickPoint = new Point(event.offsetX, event.offsetY)
 
             const clickedCellCoords = this.getClickedCellCoords(canvasClickPoint)
+            
             if (clickedCellCoords == null) {
-                // click was not in a field region
-                this.unchooseFigure()
-                await this.drawInner()
                 return
             }
-
-            function possibleMove(possibleMoves: Point[], to: Point): boolean {
-                for (const move of possibleMoves) {
-                    if (move.equal(to)) {
-                        return true
-                    }
-                }
-
-                return false
-            }
-
-            const clickedCell = this.field.cell(clickedCellCoords)
-            if (this.chosenFigureCoords && possibleMove(this.chosenFigurePossibleCoords!, clickedCellCoords)) {
-                this.field.move(this.chosenFigureCoords, clickedCellCoords)
-                this.changeTurn()
-                this.unchooseFigure()
-            } else {
-                if (
-                    clickedCell.figure 
-                    && this.turnPlayer.figuresDirection == clickedCell.figure.direction
-                ) {
-                    this.chooseFigure(clickedCellCoords)
-                } else {
-                    this.unchooseFigure()
-                }
-            }
-
-            //const figure = this.field.cell(figureCoords).figure
+            
+            this.field.update(clickedCellCoords)
 
             await this.drawInner()
         }
