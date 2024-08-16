@@ -24,41 +24,41 @@ class Figure {
 const chicken = new FigureType(
     "chicken",
     [
-	new Point(0, 1),
+        new Point(0, 1),
     ],
 )
 
 const lion = new FigureType(
     "lion",
     [
-	new Point(0, 1),
-	new Point(1, 1),
-	new Point(1, 0),
-	new Point(1, -1),
-	new Point(0, -1),
-	new Point(-1, -1),
-	new Point(-1, 0),
-	new Point(-1, 1),
+        new Point(0, 1),
+        new Point(1, 1),
+        new Point(1, 0),
+        new Point(1, -1),
+        new Point(0, -1),
+        new Point(-1, -1),
+        new Point(-1, 0),
+        new Point(-1, 1),
     ],
 )
 
 const giraffe = new FigureType(
     "giraffe",
     [
-	new Point(0, 1),
-	new Point(1, 0),
-	new Point(0, -1),
-	new Point(-1, 0),
+        new Point(0, 1),
+        new Point(1, 0),
+        new Point(0, -1),
+        new Point(-1, 0),
     ],
 )
 
 const elephant = new FigureType(
     "elephant",
     [
-	new Point( 1,  1),
-	new Point( 1, -1),
-	new Point(-1, -1),
-	new Point(-1,  1),
+        new Point( 1,  1),
+        new Point( 1, -1),
+        new Point(-1, -1),
+        new Point(-1,  1),
     ],
 )
 
