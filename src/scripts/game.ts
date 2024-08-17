@@ -1,13 +1,17 @@
 import { Field } from "./field.js"
 import { Point } from "./utils/point.js"
 import { Cell } from "./cell.js"
-import { chicken, lion, elephant, giraffe, Figure, Direction, } from "./figures.js"
+import { chicken, lion, elephant, giraffe, Figure, Direction, FigureType, } from "./figures.js"
 
 class Game {
 
-    private static readonly CELLS_HEIGHT_TO_SCREEN = 0.7
+    private static readonly CELLS_HEIGHT_TO_SCREEN = 0.5
 
     private static readonly FIGURE_TO_CELL= 0.93
+
+    private static readonly EATEN_FIGURES_HEIGHT_TO_FREE = 0.5
+
+    private static readonly EATEN_FIGURES_MARGIN_PERCENT = 0.04
 
     private static readonly CANVAS_ID = "canvas"
 
@@ -146,6 +150,27 @@ class Game {
         }
     }
 
+    private drawEatenFigures(topLeft: Point, eatenFigureFullSize: number, eatenFigureMarging: number, bag: FigureType[]) {
+        const eatenFigureSize = eatenFigureFullSize - 2*eatenFigureMarging
+
+        const ctx = this.canvas.getContext("2d")!
+
+        let pos = Point.from(topLeft)
+
+        for (const figureType of bag) {
+            const image = this.images[figureType.assetName]
+
+            ctx.drawImage(image,
+                          pos.x + eatenFigureMarging,
+                          pos.y + eatenFigureMarging,
+                          eatenFigureSize,
+                          eatenFigureSize
+                         )
+
+            pos.x += eatenFigureSize
+        }
+    }
+
     async draw() {
         const ctx = this.canvas.getContext("2d")!
 
@@ -192,6 +217,26 @@ class Game {
             (this.canvas.height - (this.field.nRows*this.cellSideSize))/2
         )
         
+        const eatenFigureFullSize = this.cellsTopLeft.y*Game.EATEN_FIGURES_HEIGHT_TO_FREE
+
+        const eatenFigureMargin = eatenFigureFullSize*Game.EATEN_FIGURES_MARGIN_PERCENT
+
+        const topEatenFigures = Array.from(this.field.topEatenFigures.keys())
+        const bottomEatenFigures = Array.from(this.field.bottomEatenFigures.keys())
+
+        const topEatenFiguresTopLeft = new Point(
+            (this.canvas.width - topEatenFigures.length*eatenFigureFullSize)/2,
+            (this.cellsTopLeft.y - eatenFigureFullSize)/2
+        )
+
+        const bottomEatenFiguresTopLeft = new Point(
+            (this.canvas.width - bottomEatenFigures.length*eatenFigureFullSize)/2,
+            topEatenFiguresTopLeft.y + this.cellsTopLeft.y + this.cellSideSize*this.field.nRows
+        )
+
+        this.drawEatenFigures(topEatenFiguresTopLeft, eatenFigureFullSize, eatenFigureMargin, topEatenFigures)
+        this.drawEatenFigures(bottomEatenFiguresTopLeft, eatenFigureFullSize, eatenFigureMargin, bottomEatenFigures)
+
         for (let i = 0; i < this.field.nRows; i++) {
             for (let j = 0; j < this.field.nCols; j++) {
                 const cell = this.field.cells[i][j]

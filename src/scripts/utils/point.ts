@@ -1,5 +1,9 @@
 class Point {
 
+    static from(p: Point) {
+        return new Point(p.x, p.y)
+    }
+
     constructor(public x: number, public y: number) {
     }
 
