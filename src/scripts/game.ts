@@ -183,30 +183,51 @@ class Game {
         return res
     }
 
+    private drawFlippedImage(
+        ctx: CanvasRenderingContext2D,
+        image: CanvasImageSource,
+        x: number,
+        y: number,
+        w: number,
+        h: number
+    ) {
+        ctx.save()
+
+        ctx.rotate(Math.PI)
+
+        ctx.drawImage(
+            image,
+            -x - w,
+            -y - h,
+            w,
+            h
+        )
+
+        ctx.restore()
+    }
+
     private drawFigure(ctx: CanvasRenderingContext2D, figure: Figure, coords: Point) {
         const image = this.images[figure.type.assetName]
 
         const figureScreenCoords = this.getFigureScreenCoords(coords)
 
         if (figure.direction == Direction.DOWN) {
-            ctx.save()
-
-            ctx.rotate(Math.PI)
-
-            ctx.drawImage(image,
-                          -(figureScreenCoords.x + this.cellSideSize - this.deltaFigureCell),
-                          -(figureScreenCoords.y + this.cellSideSize - this.deltaFigureCell),
-                          this.figureSideSize,
-                          this.figureSideSize)
-
-            ctx.restore()
+            this.drawFlippedImage(
+                ctx,
+                image,
+                figureScreenCoords.x + this.deltaFigureCell,
+                figureScreenCoords.y + this.deltaFigureCell,
+                this.figureSideSize,
+                this.figureSideSize
+            )
         } else {
-            ctx.drawImage(image,
-                          figureScreenCoords.x + this.deltaFigureCell,
-                          figureScreenCoords.y + this.deltaFigureCell,
-                          this.figureSideSize,
-                          this.figureSideSize
-                         )
+            ctx.drawImage(
+                image,
+                figureScreenCoords.x + this.deltaFigureCell,
+                figureScreenCoords.y + this.deltaFigureCell,
+                this.figureSideSize,
+                this.figureSideSize
+            )
         }
     }
 
@@ -231,12 +252,24 @@ class Game {
                 )
             }
 
-            ctx.drawImage(image,
-                          pos.x + eatenFigureMarging,
-                          pos.y + eatenFigureMarging,
-                          eatenFigureSize,
-                          eatenFigureSize
-                         )
+            if (dir == Direction.DOWN) {
+                this.drawFlippedImage(
+                    ctx,
+                    image,
+                    pos.x + eatenFigureMarging,
+                    pos.y + eatenFigureMarging,
+                    eatenFigureSize,
+                    eatenFigureSize
+                )
+            } else {
+                ctx.drawImage(
+                    image,
+                    pos.x + eatenFigureMarging,
+                    pos.y + eatenFigureMarging,
+                    eatenFigureSize,
+                    eatenFigureSize
+                )
+            }
 
             pos.x += eatenFigureFullSize
         }
