@@ -286,12 +286,41 @@ class Game {
         this.drawEatenFigures(this.topEatenFiguresTopLeft, this.eatenFigureFullSize, eatenFigureMargin, this.topEatenFigures, Direction.DOWN)
         this.drawEatenFigures(this.bottomEatenFiguresTopLeft, this.eatenFigureFullSize, eatenFigureMargin, this.bottomEatenFigures, Direction.UP)
 
+        ctx.fillStyle = "blue"
+        ctx.fillRect(
+            this.cellsTopLeft.x,
+            this.cellsTopLeft.y,
+            this.field.nCols*this.cellSideSize,
+            this.field.nRows*this.cellSideSize
+        )
+
         for (let i = 0; i < this.field.nRows; i++) {
             for (let j = 0; j < this.field.nCols; j++) {
                 const cell = this.field.cells[i][j]
                 this.drawCell(ctx, cell, new Point(j, i))
             }
         }
+
+        ctx.fillStyle = "black"
+        ctx.lineWidth = 2
+
+        for (let i = 0; i < this.field.nRows + 1; i++) {
+            ctx.moveTo(this.cellsTopLeft.x, this.cellsTopLeft.y + i*this.cellSideSize)
+            ctx.lineTo(
+                this.cellsTopLeft.x + this.field.nCols*this.cellSideSize,
+                this.cellsTopLeft.y + i*this.cellSideSize
+            )
+        }
+
+        for (let i = 0; i < this.field.nCols + 1; i++) {
+            ctx.moveTo(this.cellsTopLeft.x + i*this.cellSideSize, this.cellsTopLeft.y)
+            ctx.lineTo(
+                this.cellsTopLeft.x + i*this.cellSideSize,
+                this.cellsTopLeft.y + this.field.nRows*this.cellSideSize
+            )
+        }
+
+        ctx.stroke()
     }
 }
 
