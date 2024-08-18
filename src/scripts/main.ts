@@ -28,6 +28,7 @@ const figures4x3 = [
 const field4x3 = new Field(figures4x3)
 
 const game = new Game(field4x3)
-
-game.draw()
+game.loadImages().then(
+    () => game.draw()
+)
 

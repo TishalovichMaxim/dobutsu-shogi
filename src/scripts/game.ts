@@ -42,13 +42,13 @@ class Game {
     private eatenFigureFullSize = 0
 
     constructor(field: Field) {
-        this.loadImages()
+        this.genImageList()
         this.initCanvas()
 
         this.field = field
     }
 
-    private loadImages() {
+    private genImageList() {
         function generateImagePath(imageShortName: string): string {
             return "assets/" + imageShortName + ".png"
         }
@@ -71,7 +71,7 @@ class Game {
         })
     }
 
-    getClickedCellCoords(canvasClickPoint: Point): Point | null {
+    private getClickedCellCoords(canvasClickPoint: Point): Point | null {
         const cellsBottomRight = new Point(this.field.nCols*this.cellSideSize, this.field.nRows*this.cellSideSize)
         cellsBottomRight.add(this.cellsTopLeft)
 
@@ -85,7 +85,7 @@ class Game {
         )
     }
 
-    getClickedTopBagFigure(clickCoords: Point): FigureType | null {
+    private getClickedTopBagFigure(clickCoords: Point): FigureType | null {
         for (let i = 0; i < this.topEatenFigures.length; i++) {
             const topLeft = new Point(
                 this.topEatenFiguresTopLeft.x + i*this.eatenFigureFullSize,
@@ -103,7 +103,7 @@ class Game {
         return null
     }
 
-    getClickedBottomBagFigure(clickCoords: Point): FigureType | null {
+    private getClickedBottomBagFigure(clickCoords: Point): FigureType | null {
         for (let i = 0; i < this.bottomEatenFigures.length; i++) {
             const topLeft = new Point(
                 this.bottomEatenFiguresTopLeft.x + i*this.eatenFigureFullSize,
@@ -136,14 +136,14 @@ class Game {
                 const topBagChosenFigureType = this.getClickedTopBagFigure(canvasClickPoint)
                 if (topBagChosenFigureType) {
                     this.field.chooseTopBagFigure(topBagChosenFigureType)
-                    await this.drawInner()
+                    this.draw()
                     return
                 }
 
                 const bottomBagChosenFigureType = this.getClickedBottomBagFigure(canvasClickPoint)
                 if (bottomBagChosenFigureType) {
                     this.field.chooseBottomBagFigure(bottomBagChosenFigureType)
-                    await this.drawInner()
+                    this.draw()
                     return
                 }
 
@@ -152,7 +152,7 @@ class Game {
             
             this.field.update(clickedCellCoords)
 
-            await this.drawInner()
+            this.draw()
         }
     }
 
@@ -242,38 +242,16 @@ class Game {
         }
     }
 
-    async draw() {
-        const ctx = this.canvas.getContext("2d")!
-
-        ctx.fillStyle = "green"
-        ctx.fillRect(0, 0, this.canvas.width, this.canvas.height)
-
-        this.cellSideSize = (this.canvas.height*Game.CELLS_HEIGHT_TO_SCREEN)/this.field.nRows
-        this.figureSideSize = this.cellSideSize*Game.FIGURE_TO_CELL
-        this.deltaFigureCell = (this.cellSideSize - this.figureSideSize)/2
-
-        this.cellsTopLeft = new Point(
-            (this.canvas.width - (this.field.nCols*this.cellSideSize))/2,
-            (this.canvas.height - (this.field.nRows*this.cellSideSize))/2
-        )
-        
-        //check document.images
+    async loadImages() {
         await Promise.all(
             this.imageList.map(
                 (image) =>
                     new Promise((resolve) => image.addEventListener("load", resolve)),
             ),
         )
-
-        for (let i = 0; i < this.field.nRows; i++) {
-            for (let j = 0; j < this.field.nCols; j++) {
-                const cell = this.field.cells[i][j]
-                this.drawCell(ctx, cell, new Point(j, i))
-            }
-        }
     }
 
-    private async drawInner() {
+    draw() {
         const ctx = this.canvas.getContext("2d")!
 
         ctx.fillStyle = "green"
