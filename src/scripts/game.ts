@@ -31,6 +31,16 @@ class Game {
 
     private cellsTopLeft = new Point(0, 0)
 
+    private topEatenFigures: FigureType[] = []
+
+    private bottomEatenFigures: FigureType[] = []
+
+    private topEatenFiguresTopLeft = new Point(0, 0)
+
+    private bottomEatenFiguresTopLeft = new Point(0, 0)
+
+    private eatenFigureFullSize = 0
+
     constructor(field: Field) {
         this.loadImages()
         this.initCanvas()
@@ -75,6 +85,42 @@ class Game {
         )
     }
 
+    getClickedTopBagFigure(clickCoords: Point): FigureType | null {
+        for (let i = 0; i < this.topEatenFigures.length; i++) {
+            const topLeft = new Point(
+                this.topEatenFiguresTopLeft.x + i*this.eatenFigureFullSize,
+                this.topEatenFiguresTopLeft.y
+            )
+            const bottomRight = new Point(
+                topLeft.x + this.eatenFigureFullSize,
+                topLeft.y + this.eatenFigureFullSize,
+            )
+            if (clickCoords.inRect(topLeft, bottomRight)) {
+                return this.topEatenFigures[i]
+            }
+        }
+        
+        return null
+    }
+
+    getClickedBottomBagFigure(clickCoords: Point): FigureType | null {
+        for (let i = 0; i < this.bottomEatenFigures.length; i++) {
+            const topLeft = new Point(
+                this.bottomEatenFiguresTopLeft.x + i*this.eatenFigureFullSize,
+                this.bottomEatenFiguresTopLeft.y
+            )
+            const bottomRight = new Point(
+                topLeft.x + this.eatenFigureFullSize,
+                topLeft.y + this.eatenFigureFullSize,
+            )
+            if (clickCoords.inRect(topLeft, bottomRight)) {
+                return this.bottomEatenFigures[i]
+            }
+        }
+        
+        return null
+    }
+
     private initCanvas() {
         this.canvas = document.getElementById(Game.CANVAS_ID) as HTMLCanvasElement
 
@@ -87,6 +133,20 @@ class Game {
             const clickedCellCoords = this.getClickedCellCoords(canvasClickPoint)
             
             if (clickedCellCoords == null) {
+                const topBagChosenFigureType = this.getClickedTopBagFigure(canvasClickPoint)
+                if (topBagChosenFigureType) {
+                    this.field.chooseTopBagFigure(topBagChosenFigureType)
+                    await this.drawInner()
+                    return
+                }
+
+                const bottomBagChosenFigureType = this.getClickedBottomBagFigure(canvasClickPoint)
+                if (bottomBagChosenFigureType) {
+                    this.field.chooseBottomBagFigure(bottomBagChosenFigureType)
+                    await this.drawInner()
+                    return
+                }
+
                 return
             }
             
@@ -150,15 +210,26 @@ class Game {
         }
     }
 
-    private drawEatenFigures(topLeft: Point, eatenFigureFullSize: number, eatenFigureMarging: number, bag: FigureType[]) {
+    private drawEatenFigures(topLeft: Point, eatenFigureFullSize: number, eatenFigureMarging: number, bag: FigureType[], dir: Direction) {
         const eatenFigureSize = eatenFigureFullSize - 2*eatenFigureMarging
 
         const ctx = this.canvas.getContext("2d")!
 
         let pos = Point.from(topLeft)
 
+        ctx.fillStyle = "red"
+
         for (const figureType of bag) {
             const image = this.images[figureType.assetName]
+
+            if (dir == this.field.turnDirection && figureType == this.field.chosenFigureType) {
+                ctx.fillRect(
+                    pos.x,
+                    pos.y,
+                    eatenFigureFullSize,
+                    eatenFigureFullSize
+                )
+            }
 
             ctx.drawImage(image,
                           pos.x + eatenFigureMarging,
@@ -167,7 +238,7 @@ class Game {
                           eatenFigureSize
                          )
 
-            pos.x += eatenFigureSize
+            pos.x += eatenFigureFullSize
         }
     }
 
@@ -217,25 +288,25 @@ class Game {
             (this.canvas.height - (this.field.nRows*this.cellSideSize))/2
         )
         
-        const eatenFigureFullSize = this.cellsTopLeft.y*Game.EATEN_FIGURES_HEIGHT_TO_FREE
+        this.eatenFigureFullSize = this.cellsTopLeft.y*Game.EATEN_FIGURES_HEIGHT_TO_FREE
 
-        const eatenFigureMargin = eatenFigureFullSize*Game.EATEN_FIGURES_MARGIN_PERCENT
+        const eatenFigureMargin = this.eatenFigureFullSize*Game.EATEN_FIGURES_MARGIN_PERCENT
 
-        const topEatenFigures = Array.from(this.field.topEatenFigures.keys())
-        const bottomEatenFigures = Array.from(this.field.bottomEatenFigures.keys())
+        this.topEatenFigures = Array.from(this.field.topEatenFigures.keys())
+        this.bottomEatenFigures = Array.from(this.field.bottomEatenFigures.keys())
 
-        const topEatenFiguresTopLeft = new Point(
-            (this.canvas.width - topEatenFigures.length*eatenFigureFullSize)/2,
-            (this.cellsTopLeft.y - eatenFigureFullSize)/2
+        this.topEatenFiguresTopLeft = new Point(
+            (this.canvas.width - this.topEatenFigures.length*this.eatenFigureFullSize)/2,
+            (this.cellsTopLeft.y - this.eatenFigureFullSize)/2
         )
 
-        const bottomEatenFiguresTopLeft = new Point(
-            (this.canvas.width - bottomEatenFigures.length*eatenFigureFullSize)/2,
-            topEatenFiguresTopLeft.y + this.cellsTopLeft.y + this.cellSideSize*this.field.nRows
+        this.bottomEatenFiguresTopLeft = new Point(
+            (this.canvas.width - this.bottomEatenFigures.length*this.eatenFigureFullSize)/2,
+            this.topEatenFiguresTopLeft.y + this.cellsTopLeft.y + this.cellSideSize*this.field.nRows
         )
 
-        this.drawEatenFigures(topEatenFiguresTopLeft, eatenFigureFullSize, eatenFigureMargin, topEatenFigures)
-        this.drawEatenFigures(bottomEatenFiguresTopLeft, eatenFigureFullSize, eatenFigureMargin, bottomEatenFigures)
+        this.drawEatenFigures(this.topEatenFiguresTopLeft, this.eatenFigureFullSize, eatenFigureMargin, this.topEatenFigures, Direction.DOWN)
+        this.drawEatenFigures(this.bottomEatenFiguresTopLeft, this.eatenFigureFullSize, eatenFigureMargin, this.bottomEatenFigures, Direction.UP)
 
         for (let i = 0; i < this.field.nRows; i++) {
             for (let j = 0; j < this.field.nCols; j++) {

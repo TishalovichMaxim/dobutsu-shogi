@@ -41,6 +41,18 @@ class Field {
 
     private _chosenFigureAfterMoveCoords: Point[] | null = null
 
+    private _chosenFigureType: FigureType | null = null
+
+    private _possibleToPlaceFigureCoords: Point[] | null = null
+
+    public get chosenFigureType(): FigureType | null {
+        return this._chosenFigureType
+    }
+
+    public get turnDirection() {
+        return this._turnPlayer.figuresDirection
+    }
+
     private unchooseFigure() {
         if (!this._chosenFigureCoords) {
             return
@@ -84,7 +96,7 @@ class Field {
         }
     }
 
-    unhilightAllCells() {
+    private unhilightAllCells() {
         for (let i = 0; i < this.nRows; i++) {
             for (let j = 0; j < this.nCols; j++) {
                 this.cells[i][j].unhighlight()
@@ -92,11 +104,11 @@ class Field {
         }
     }
 
-    cell(coords: Point): Cell {
+    private cell(coords: Point): Cell {
         return this.cells[coords.y][coords.x]
     }
 
-    move(to: Point): boolean {
+    private move(to: Point): boolean {
         function possibleMove(afterMoveCoords: Point, afterMovePossibleCoords: Point[]): boolean {
             for (const possibleCoords of afterMovePossibleCoords) {
                 if (afterMoveCoords.equal(possibleCoords)) {
@@ -147,7 +159,7 @@ class Field {
         return false
     }
 
-    highlightPossibleMoves(coords: Point): Point[] {
+    private highlightPossibleMoves(coords: Point): Point[] {
         const possibleMoves: Point[] = []
 
         this.unhilightAllCells()
@@ -180,7 +192,74 @@ class Field {
         return possibleMoves
     }
 
+    private setCoordsForPlacingFigure(figureType: FigureType) {
+        this._possibleToPlaceFigureCoords = []
+
+        for (let i = 0; i < this.nRows; i++) {
+            for (let j = 0; j < this.nCols; j++) {
+                const coords = new Point(j, i)
+                const cell = this.cell(coords)
+                if (!cell.figure) {
+                    cell.highlight()
+                    this._possibleToPlaceFigureCoords.push(coords);
+                }
+            }
+        }
+    }
+
+    private chooseFigureType(figureType: FigureType) {
+         this.unchooseFigure()
+         this._chosenFigureType = figureType
+         this.setCoordsForPlacingFigure(figureType)
+    }
+
+    private unchooseFigureType() {
+         this._chosenFigureType = null
+         this._possibleToPlaceFigureCoords = null
+    }
+
+    private placeEatenFigure(figureType: FigureType, coords: Point): boolean {
+        const cell = this.cell(coords)
+
+        if (cell.figure) {
+            return false
+        }
+
+        this._turnPlayer.removeEatenFigure(figureType)
+        cell.figure = new Figure(this._turnPlayer.figuresDirection, figureType)
+
+        this.changeTurn()
+        this.unhilightAllCells()
+        this.unchooseFigureType()
+
+        return true
+    }
+
+    chooseTopBagFigure(figureType: FigureType) {
+        if (this._turnPlayer != this._topPlayer) {
+            return
+        }
+
+        this.chooseFigureType(figureType)
+    }
+
+    chooseBottomBagFigure(figureType: FigureType) {
+        if (this._turnPlayer != this._bottomPlayer) {
+            return
+        }
+
+        this.chooseFigureType(figureType)
+    }
+
     update(coords: Point) {
+        if (this._chosenFigureType) {
+            if (this.placeEatenFigure(this._chosenFigureType, coords)) {
+                return
+            } else {
+                this.unchooseFigureType()
+            }
+        }
+
         if (!this._chosenFigureCoords) {
             this.chooseFigure(coords)
             return
